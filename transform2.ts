@@ -33,5 +33,19 @@ export default function transformer(file: FileInfo, api: API): string | null {
         lodashFunctions.map(name => j.importDeclaration([j.importDefaultSpecifier(j.identifier(name))], j.literal(`lodash/${name}`)))
       );
     });
+
+  const importsSet = new Set();
+
+  root
+    .find(j.ImportDeclaration)
+    .filter(path => path.value?.source?.value.toString().includes('lodash'))
+    .forEach(path => {
+      if(importsSet.has(path.value.source.value)) {
+        j(path).remove();
+      } else {
+        importsSet.add(path.value.source.value);
+      }
+    });
+
   return root.toSource();
 }
