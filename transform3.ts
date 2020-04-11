@@ -29,9 +29,35 @@ export default function transformer(file: FileInfo, api: API): string | null {
       }
     })
     .forEach(path => {
+      path.value.specifiers.forEach(specifier => {
+        if (j.ImportSpecifier.check(specifier)) {
+          lodashFunctions.push(specifier.imported.name);
+          if (specifier.imported.name !== specifier.local.name) {
+            root
+              .find(j.Identifier, {
+                name: specifier.local.name,
+              })
+              .replaceWith(j.identifier(specifier.imported.name))
+          }
+        }
+      });
       j(path).replaceWith(
         lodashFunctions.map(name => j.importDeclaration([j.importDefaultSpecifier(j.identifier(name))], j.literal(`lodash/${name}`)))
       );
     });
+
+  const importsSet = new Set();
+
+  root
+    .find(j.ImportDeclaration)
+    .filter(path => path.value?.source?.value.toString().includes('lodash'))
+    .forEach(path => {
+      if(importsSet.has(path.value.source.value)) {
+        j(path).remove();
+      } else {
+        importsSet.add(path.value.source.value);
+      }
+    });
+
   return root.toSource();
 }

@@ -1,23 +1,23 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
+import { orderBy, map as lodashMap } from 'lodash';
 import filter from 'lodash/filter';
 import identity from 'lodash/identity';
-import { filter as lodashFilter, orderBy } from 'lodash';
 
-_([1,2,3]).filter(_.identity).value();
+const data: any = [
+  {value: 1},
+  {value: 2},
+  {value: 3},
+];
+
+_.filter([1,2,3], _.identity);
 filter([1,2,3], identity);
-lodashFilter([1,2,3], identity);
-orderBy([1,2,3]);
+orderBy(data, 'value');
 
-const number = '100000000';
+const numbers = _.range(1, 10);
+const chunks = _.chunk(numbers,3);
 
-_.chain(number)
-  .toInteger()
-  .split('')
-  .reverse()
-  .chunk(3)
-  .map(ch => ch.reverse().join(''))
-  .reverse()
-  .join(',')
-  .value();
+lodashMap(data);
 
-console.log(number);
+_.map(data);
+
+console.log(chunks);

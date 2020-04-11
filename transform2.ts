@@ -15,7 +15,7 @@ export default function transformer(file: FileInfo, api: API): string | null {
       name: '_'
     },
   }).forEach((path) => {
-    if (j.Identifier.assert(path.value.property)) {
+    if (j.Identifier.check(path.value.property)) {
       lodashFunctions.push(path.value.property.name);
       j(path).replaceWith(j.identifier(path.value.property.name));
     }
@@ -29,6 +29,11 @@ export default function transformer(file: FileInfo, api: API): string | null {
       }
     })
     .forEach(path => {
+      path.value.specifiers.forEach(specifier => {
+        if (j.ImportSpecifier.check(specifier)) {
+          lodashFunctions.push(specifier.imported.name);
+        }
+      });
       j(path).replaceWith(
         lodashFunctions.map(name => j.importDeclaration([j.importDefaultSpecifier(j.identifier(name))], j.literal(`lodash/${name}`)))
       );

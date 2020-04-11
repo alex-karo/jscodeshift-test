@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "esnext",
-    "lib": ["es6", "dom"],
-    "types": ["jest", "node"],
+    "target": "es2017",
+    "lib": ["es2017", "es2015", "dom"],
     "sourceMap": true,
     "allowJs": true,
-    "moduleResolution": "node",
     "rootDir": ".",
+    "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
