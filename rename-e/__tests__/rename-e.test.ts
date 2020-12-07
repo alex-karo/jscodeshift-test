@@ -1,0 +1,7 @@
+'use strict';
+
+jest.autoMockOff();
+const { defineTest } = require('jscodeshift/dist/testUtils');
+
+defineTest(__dirname, 'rename-e', null, 'error');
+defineTest(__dirname, 'rename-e', null, 'event');
