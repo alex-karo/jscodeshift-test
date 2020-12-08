@@ -3,7 +3,6 @@ import j from 'jscodeshift/src/core';
 
 const transform: Transform = (file, api, options) => {
   const funcArgs = options.args.split(',');
-  console.log(funcArgs);
   const { path: filePath, source } = file;
   const root = j(source);
   root
