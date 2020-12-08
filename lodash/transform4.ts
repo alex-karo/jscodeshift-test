@@ -1,10 +1,11 @@
 import { API, ASTPath, CallExpression, File, FileInfo, ImportDeclaration, JSCodeshift } from 'jscodeshift/src/core';
+import j from 'jscodeshift/src/core';
 import { Collection } from 'jscodeshift/src/Collection';
 import { lodashNotChainableMethods } from './lodashNotChainableMethods';
 
-export const parser = 'tsx';
+export const parser = 'ts';
 
-function removeDuplicateImports(root: Collection<File>, j: JSCodeshift) {
+function removeDuplicateImports(root: Collection<File>) {
   const importsSet = new Set();
   root
     .find(j.ImportDeclaration)
@@ -18,7 +19,7 @@ function removeDuplicateImports(root: Collection<File>, j: JSCodeshift) {
     });
 }
 
-function addMixinMethodsForChaining(root: Collection<File>, j: JSCodeshift, methodNames: Set<string>) {
+function addMixinMethodsForChaining(root: Collection<File>, methodNames: Set<string>) {
   if (methodNames.size === 0) {
     return;
   }
@@ -55,7 +56,7 @@ function addMixinMethodsForChaining(root: Collection<File>, j: JSCodeshift, meth
     .insertAfter(j([mixinCall, mixinNotChainableCall, ...prototypesSetCall]).toSource());
 }
 
-function getChainingFunctions(root: Collection<File>, j: JSCodeshift): Set<string> {
+function getChainingFunctions(root: Collection<File>): Set<string> {
   const lodashChainingFunctions = new Set<string>();
   const chainingCalls = root.find(j.CallExpression, { callee: { name: '_' } });
 
@@ -75,7 +76,7 @@ function getChainingFunctions(root: Collection<File>, j: JSCodeshift): Set<strin
 }
 
 
-function replaceImports(root: Collection<File>, j: JSCodeshift, methodNames: string[], addMixinImport = false) {
+function replaceImports(root: Collection<File>, methodNames: string[], addMixinImport = false) {
 
   const methods = methodNames.slice();
 
@@ -136,10 +137,10 @@ export default function transformer(file: FileInfo, api: API): string | null {
     }
   });
 
-  const lodashChainingFunctions = getChainingFunctions(root, j);
-  replaceImports(root, j, [...lodashFunctions, ...lodashChainingFunctions], lodashChainingFunctions.size > 0);
-  removeDuplicateImports(root, j);
-  addMixinMethodsForChaining(root, j, lodashChainingFunctions);
+  const lodashChainingFunctions = getChainingFunctions(root);
+  replaceImports(root, [...lodashFunctions, ...lodashChainingFunctions], lodashChainingFunctions.size > 0);
+  removeDuplicateImports(root);
+  addMixinMethodsForChaining(root, lodashChainingFunctions);
 
   return root.toSource();
 }
