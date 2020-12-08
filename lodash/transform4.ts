@@ -45,12 +45,7 @@ function addMixinMethodsForChaining(root: Collection<File>, methodNames: Set<str
   ]) : j.emptyStatement();
   const prototypesSetCall = [...methodNames]
     .filter(name => prototypeMethods.has(name))
-    .map(name => j.expressionStatement(
-      j.assignmentExpression(
-        '=',
-        j.memberExpression(j.memberExpression(j.identifier('_'), j.identifier('prototype')), j.identifier(name)),
-        j.identifier(name),
-      )));
+    .map(name => j(`_.prototype.${name} = ${name};`).getAST()[0].value.program.body[0]);
   root.find(j.ImportDeclaration)
     .at(-1)
     .insertAfter(j([mixinCall, mixinNotChainableCall, ...prototypesSetCall]).toSource());
